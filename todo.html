@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prakash<i> notebook</i></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .notebook {
+            width: 100%;
+            max-width: 800px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .notebook:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50px;
+            width: 2px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent,
+                transparent 20px,
+                #e9ecef 20px,
+                #e9ecef 22px
+            );
+            z-index: 1;
+        }
+        
+        .notebook-header {
+            background: linear-gradient(90deg, #343a40 0%, #495057 100%);
+            color: white;
+            padding: 25px 30px 25px 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .notebook-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .notebook-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .current-date {
+            background: #212529;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            padding: 20px 30px 20px 80px;
+            background: #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .input-group {
+            display: flex;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        #task-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 1rem;
+            background: #f8f9fa;
+        }
+        
+        #add-btn {
+            background: linear-gradient(90deg, #495057 0%, #343a40 100%);
+            color: white;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            padding: 0 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        #add-btn:hover {
+            background: linear-gradient(90deg, #5a6268 0%, #495057 100%);
+        }
+        
+        .filters {
+            display: flex;
+            padding: 15px 30px 15px 80px;
+            background: #e9ecef;
+            border-bottom: 2px solid #dee2e6;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #495057;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background: #343a40;
+            color: white;
+            border-color: #343a40;
+        }
+        
+        .stats {
+            padding: 15px 30px 15px 80px;
+            display: flex;
+            justify-content: space-between;
+            background: #e9ecef;
+            color: #495057;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #dee2e6;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-badge {
+            background: #343a40;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        #task-list {
+            list-style: none;
+            min-height: 400px;
+            padding: 0 30px 20px 80px;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px 0;
+            border-bottom: 1px solid #e9ecef;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-checkbox {
+            margin-right: 20px;
+            margin-top: 5px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #495057;
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-text {
+            font-size: 1.15rem;
+            color: #212529;
+            transition: all 0.3s;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        
+        .task-edit-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            display: none;
+            margin-bottom: 10px;
+        }
+        
+        .task-edit-input:focus {
+            outline: none;
+            border-color: #495057;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: 15px;
+        }
+        
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            color: #495057;
+        }
+        
+        .edit-btn:hover {
+            background: #343a40;
+            color: white;
+            border-color: #343a40;
+        }
+        
+        .save-btn {
+            display: none;
+            background: #2a9d8f;
+            color: white;
+            border-color: #2a9d8f;
+        }
+        
+        .save-btn:hover {
+            background: #21867a;
+            border-color: #21867a;
+        }
+        
+        .delete-btn:hover {
+            background: #c92a2a;
+            color: white;
+            border-color: #c92a2a;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: #ced4da;
+            opacity: 0.7;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .notebook:before {
+                left: 30px;
+            }
+            
+            .notebook-header, .controls, .filters, .stats, #task-list {
+                padding-left: 60px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .notebook:before {
+                left: 20px;
+            }
+            
+            .notebook-header, .controls, .filters, .stats, #task-list {
+                padding-left: 50px;
+            }
+            
+            .notebook-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .filters {
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                padding: 6px 15px;
+                font-size: 0.8rem;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .task-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notebook">
+        <div class="notebook-header">
+            <div>
+              <div class="notebook-title"><i class="fas fa-book"></i> Prakash Notebook </div>
+              <div class="notebook-subtitle"> <i>Work as organized </i></div>
+            </div>
+            <div class="current-date">
+                <i class="fas fa-calendar"></i> <span id="current-date">Loading date...</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="input-group">
+                <input type="text" id="task-input" placeholder="Add a new task...">
+                <button id="add-btn">Add Task</button>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-list"></i> All Tasks
+            </button>
+            <button class="filter-btn" data-filter="active">
+                <i class="fas fa-circle"></i> Active
+            </button>
+            <button class="filter-btn" data-filter="completed">
+                <i class="fas fa-check-circle"></i> Completed
+            </button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <i class="fas fa-tasks"></i> Total tasks: <span class="stat-badge" id="total-count">0</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-check-circle"></i> Completed: <span class="stat-badge" id="completed-count">0</span>
+            </div>
+        </div>
+        
+        <ul id="task-list">
+            <li class="empty-state">
+                <i class="fas fa-file-alt"></i>
+                <h3>Your Notebook is Empty</h3>
+                <p>Add your first task to get started! You can mark tasks as complete, edit them, or delete them.</p>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const taskInput = document.getElementById('task-input');
+            const addBtn = document.getElementById('add-btn');
+            const taskList = document.getElementById('task-list');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const totalCount = document.getElementById('total-count');
+            const completedCount = document.getElementById('completed-count');
+            const currentDateEl = document.getElementById('current-date');
+            const emptyState = document.querySelector('.empty-state');
+            
+            // Set current date
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            currentDateEl.textContent = today.toLocaleDateString('en-US', options);
+            
+            // Initialize tasks array from localStorage or empty array
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            
+            // Initial render
+            renderTasks();
+            updateStats();
+            
+            // Add task event
+            addBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addTask();
+            });
+            
+            // Filter event listeners
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelector('.filter-btn.active').classList.remove('active');
+                    this.classList.add('active');
+                    renderTasks();
+                });
+            });
+            
+            // Function to add a new task
+            function addTask() {
+                const taskText = taskInput.value.trim();
+                
+                if (taskText) {
+                    // Create task object
+                    const task = {
+                        id: Date.now(),
+                        text: taskText,
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    tasks.push(task);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                    
+                    // Clear input
+                    taskInput.value = '';
+                    taskInput.focus();
+                }
+            }
+            
+            // Function to render tasks based on filter
+            function renderTasks() {
+                const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                
+                // Filter tasks based on active filter
+                let filteredTasks = tasks;
+                if (activeFilter === 'active') {
+                    filteredTasks = tasks.filter(task => !task.completed);
+                } else if (activeFilter === 'completed') {
+                    filteredTasks = tasks.filter(task => task.completed);
+                }
+                
+                // Hide empty state if there are tasks
+                if (filteredTasks.length > 0) {
+                    taskList.innerHTML = '';
+                } else {
+                    taskList.innerHTML = `
+                        <li class="empty-state">
+                            <i class="fas fa-file-alt"></i>
+                            <h3>No Tasks Found</h3>
+                            <p>${activeFilter === 'all' ? 'Add a task to get started!' : activeFilter === 'active' ? 'All tasks are completed!' : 'No tasks completed yet!'}</p>
+                        </li>
+                    `;
+                    return;
+                }
+                
+                // Generate task HTML
+                filteredTasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                    taskItem.dataset.id = task.id;
+                    
+                    taskItem.innerHTML = `
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        <div class="task-content">
+                            <div class="task-text">${task.text}</div>
+                            <input type="text" class="task-edit-input" value="${task.text}">
+                        </div>
+                        <div class="task-actions">
+                            <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn save-btn"><i class="fas fa-check"></i></button>
+                            <button class="action-btn delete-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    `;
+                    
+                    taskList.appendChild(taskItem);
+                });
+                
+                // Add event listeners to the new task items
+                attachTaskEventListeners();
+            }
+            
+            // Function to attach event listeners to task elements
+            function attachTaskEventListeners() {
+                document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', toggleTaskStatus);
+                });
+                
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', enableEditMode);
+                });
+                
+                document.querySelectorAll('.save-btn').forEach(btn => {
+                    btn.addEventListener('click', saveEditedTask);
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', deleteTask);
+                });
+            }
+            
+            // Function to toggle task completion status
+            function toggleTaskStatus(e) {
+                const taskItem = e.target.closest('.task-item');
+                const taskId = parseInt(taskItem.dataset.id);
+                const task = tasks.find(task => task.id === taskId);
+                
+                if (task) {
+                    task.completed = e.target.checked;
+                    saveTasks();
+                    updateStats();
+                    
+                    // Add/remove completed class for styling
+                    if (task.completed) {
+                        taskItem.classList.add('completed');
+                    } else {
+                        taskItem.classList.remove('completed');
+                    }
+                }
+            }
+            
+            // Function to enable edit mode
+            function enableEditMode(e) {
+                const taskItem = e.target.closest('.task-item');
+                const taskText = taskItem.querySelector('.task-text');
+                const editInput = taskItem.querySelector('.task-edit-input');
+                const editBtn = taskItem.querySelector('.edit-btn');
+                const saveBtn = taskItem.querySelector('.save-btn');
+                
+                // Switch to edit mode
+                taskText.style.display = 'none';
+                editInput.style.display = 'block';
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'flex';
+                
+                // Focus and select the text in the input
+                editInput.focus();
+                editInput.select();
+            }
+            
+            // Function to save edited task
+            function saveEditedTask(e) {
+                const taskItem = e.target.closest('.task-item');
+                const taskId = parseInt(taskItem.dataset.id);
+                const taskText = taskItem.querySelector('.task-text');
+                const editInput = taskItem.querySelector('.task-edit-input');
+                const editBtn = taskItem.querySelector('.edit-btn');
+                const saveBtn = taskItem.querySelector('.save-btn');
+                const newText = editInput.value.trim();
+                
+                if (newText) {
+                    const task = tasks.find(task => task.id === taskId);
+                    if (task) {
+                        task.text = newText;
+                        saveTasks();
+                        
+                        // Switch back to view mode
+                        taskText.textContent = newText;
+                        taskText.style.display = 'block';
+                        editInput.style.display = 'none';
+                        editBtn.style.display = 'flex';
+                        saveBtn.style.display = 'none';
+                    }
+                } else {
+                    // If empty, cancel edit
+                    taskText.style.display = 'block';
+                    editInput.style.display = 'none';
+                    editBtn.style.display = 'flex';
+                    saveBtn.style.display = 'none';
+                }
+            }
+            
+            // Function to delete a task
+            function deleteTask(e) {
+                const taskItem = e.target.closest('.task-item');
+                const taskId = parseInt(taskItem.dataset.id);
+                
+                // Remove task from array
+                tasks = tasks.filter(task => task.id !== taskId);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+            
+            // Function to update statistics
+            function updateStats() {
+                totalCount.textContent = tasks.length;
+                const completedTasks = tasks.filter(task => task.completed).length;
+                completedCount.textContent = completedTasks;
+                
+                // Show/hide empty state
+                if (tasks.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            }
+            
+            // Function to save tasks to localStorage
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+        });
+    </script>
+</body>
+</html>
